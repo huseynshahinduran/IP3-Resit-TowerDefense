@@ -1,0 +1,10 @@
+﻿fileFormatVersion: 2
+guid: 1374c840df7846c285e765e84bbae920
+timeCreated: 1499949999
+AssetOrigin:
+  serializedVersion: 1
+  productId: 107692
+  packageName: Tower Defense Template
+  packageVersion: 2.0
+  assetPath: Assets/UnityTechnologies/TowerDefenseTemplate/Scripts/TowerDefense/Towers/Projectiles/ContactDestroyer.cs
+  uploadId: 873348

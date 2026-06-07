@@ -1,0 +1,10 @@
+﻿fileFormatVersion: 2
+guid: dcad3fce3ed74be8affcd76ef651322a
+timeCreated: 1498119234
+AssetOrigin:
+  serializedVersion: 1
+  productId: 107692
+  packageName: Tower Defense Template
+  packageVersion: 2.0
+  assetPath: Assets/UnityTechnologies/TowerDefenseTemplate/Scripts/Core/Input/PinchInfo.cs
+  uploadId: 873348

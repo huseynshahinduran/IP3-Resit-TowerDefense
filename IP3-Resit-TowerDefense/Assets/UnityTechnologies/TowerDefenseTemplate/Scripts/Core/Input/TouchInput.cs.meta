@@ -1,0 +1,10 @@
+﻿fileFormatVersion: 2
+guid: ea9a3346f02741508cd713eae4e993f2
+timeCreated: 1503478941
+AssetOrigin:
+  serializedVersion: 1
+  productId: 107692
+  packageName: Tower Defense Template
+  packageVersion: 2.0
+  assetPath: Assets/UnityTechnologies/TowerDefenseTemplate/Scripts/Core/Input/TouchInput.cs
+  uploadId: 873348

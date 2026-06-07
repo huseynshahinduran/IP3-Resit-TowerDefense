@@ -1,0 +1,10 @@
+﻿fileFormatVersion: 2
+guid: 8e0bdf24d6d3417194d97871b49c0c95
+timeCreated: 1504596347
+AssetOrigin:
+  serializedVersion: 1
+  productId: 107692
+  packageName: Tower Defense Template
+  packageVersion: 2.0
+  assetPath: Assets/UnityTechnologies/TowerDefenseTemplate/Scripts/Core/Input/CameraInputScheme.cs
+  uploadId: 873348

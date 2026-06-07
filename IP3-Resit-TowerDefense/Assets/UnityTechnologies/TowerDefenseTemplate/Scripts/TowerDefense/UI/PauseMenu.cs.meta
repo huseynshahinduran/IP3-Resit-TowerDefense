@@ -1,0 +1,10 @@
+﻿fileFormatVersion: 2
+guid: 93bda8565a3a4288be224798494ffc99
+timeCreated: 1501156597
+AssetOrigin:
+  serializedVersion: 1
+  productId: 107692
+  packageName: Tower Defense Template
+  packageVersion: 2.0
+  assetPath: Assets/UnityTechnologies/TowerDefenseTemplate/Scripts/TowerDefense/UI/PauseMenu.cs
+  uploadId: 873348

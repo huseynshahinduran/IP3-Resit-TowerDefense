@@ -1,0 +1,10 @@
+﻿fileFormatVersion: 2
+guid: fe7812be11b7491c9092a3ac2ddf75ed
+timeCreated: 1503483749
+AssetOrigin:
+  serializedVersion: 1
+  productId: 107692
+  packageName: Tower Defense Template
+  packageVersion: 2.0
+  assetPath: Assets/UnityTechnologies/TowerDefenseTemplate/Scripts/Core/Camera/CameraInitialState.cs
+  uploadId: 873348

@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 40b023d258a3549d1996a98f0ddf2758
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 4890085278179872738
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 107692
+  packageName: Tower Defense Template
+  packageVersion: 2.0
+  assetPath: Assets/UnityTechnologies/TowerDefenseTemplate/Scenes/Levels/Level1/Level1Settings.lighting
+  uploadId: 873348
