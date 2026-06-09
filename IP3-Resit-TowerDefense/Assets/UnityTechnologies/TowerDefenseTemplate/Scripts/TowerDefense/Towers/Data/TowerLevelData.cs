@@ -42,5 +42,14 @@ namespace TowerDefense.Towers.Data
 		/// The tower icon
 		/// </summary>
 		public Sprite icon;
-	}
+
+		// ---- Upgrade & Sell Feedback (added for IP3 resit) ----
+
+		[Header("Upgrade Feedback")]
+		[Tooltip("Particle effect spawned when the tower is upgraded TO this level")]
+		public GameObject upgradeEffectPrefab;
+
+		[Tooltip("Sound played when the tower is upgraded TO this level")]
+        public AudioClip upgradeSound;
+    }
 }

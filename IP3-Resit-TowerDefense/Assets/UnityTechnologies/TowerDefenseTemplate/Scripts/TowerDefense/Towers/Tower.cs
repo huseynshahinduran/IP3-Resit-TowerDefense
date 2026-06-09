@@ -2,6 +2,7 @@ using System;
 using ActionGameFramework.Health;
 using Core.Utilities;
 using TowerDefense.Level;
+using TowerDefense.Towers.Data;
 using TowerDefense.Towers.Placement;
 using TowerDefense.UI.HUD;
 using UnityEngine;
@@ -266,13 +267,47 @@ namespace TowerDefense.Towers
 			LevelState levelState = LevelManager.instance.levelState;
 			bool initialise = levelState == LevelState.AllEnemiesSpawned || levelState == LevelState.SpawningEnemies;
 			currentTowerLevel.SetAffectorState(initialise);
+
+			// --- Upgrade feedback (IP3 resit) ---
+			// Only play on a real upgrade (levle > 0), not on initial build (level 0)
+			if(level>0)
+			{
+				PlayUpgradeFeedback();
+			}
 		}
 
-		/// <summary>
-		/// Scales the health based on the previous health
-		/// Requires override when the rules for scaling health on upgrade changes
-		/// </summary>
-		protected virtual void ScaleHealth()
+        // <summary>
+        // Plays the audiovisual feedback for upgrading to the current level.
+        // Reads the effect/sound from the current level's TowerLevelData.
+		// Added for IP3 resit.
+		// </summary>
+		protected virtual void PlayUpgradeFeedback()
+		{
+			// currentTowerLevel exposes its TowerLevelData; guard against missing data
+			TowerLevelData data = currentTowerLevel.levelData;
+			if(data == null)
+			{
+				return;
+			}
+
+			// Spawn the particle effect at the tower's position, if one is assigned
+			if(data.upgradeEffectPrefab != null)
+			{
+                Instantiate(data.upgradeEffectPrefab, transform.position, transform.rotation);
+            }
+
+            // Play the upgrade sound at the tower's position, if one is assigned
+			if(data.upgradeSound != null)
+			{
+				AudioSource.PlayClipAtPoint(data.upgradeSound, transform.position);
+			}
+        }
+
+        /// <summary>
+        /// Scales the health based on the previous health
+        /// Requires override when the rules for scaling health on upgrade changes
+        /// </summary>
+        protected virtual void ScaleHealth()
 		{
 			configuration.SetMaxHealth(currentTowerLevel.maxHealth);
 			
