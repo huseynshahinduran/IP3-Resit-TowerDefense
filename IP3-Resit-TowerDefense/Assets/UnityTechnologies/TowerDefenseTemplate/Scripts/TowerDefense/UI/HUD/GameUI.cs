@@ -466,7 +466,7 @@ namespace TowerDefense.UI.HUD
 			bool successfulUpgrade = LevelManager.instance.currency.TryPurchase(upgradeCost);
 			if (successfulUpgrade)
 			{
-				currentSelectedTower.UpgradeTower();
+				currentSelectedTower.UpgradeTower(TowerUpgradeChoice.Power);
 			}
 			towerUI.Hide();
 			DeselectTower();
