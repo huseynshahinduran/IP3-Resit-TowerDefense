@@ -336,7 +336,7 @@ namespace TowerDefense.Towers
 			// instantiated TowerLevel's baked stats don't reset the player's picks.
 			ApplyUpgradeModifiers();
 
-			return true;
+            return true;
         }
 
         /// <summary>
