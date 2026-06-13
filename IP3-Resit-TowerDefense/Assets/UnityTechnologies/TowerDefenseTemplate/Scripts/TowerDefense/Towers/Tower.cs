@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using ActionGameFramework.Health;
 using Core.Utilities;
 using TowerDefense.Level;
@@ -44,11 +45,22 @@ namespace TowerDefense.Towers
 		public TowerLevel currentTowerLevel { get; protected set; }
 
 		/// <summary>
-		/// Gets whether the tower can level up anymore
+		/// An empty options array, returned to avoid per-call allocations
 		/// </summary>
-		public bool isAtMaxLevel
+		static readonly TowerLevel[] s_NoOptions = new TowerLevel[0];
+
+        /// <summary>
+        /// The actual prefabs the player has upgraded through, in order (index 0 = base level).
+        /// Used to refund the EXACT path the player paid for, regardless of which branch they took.
+        /// </summary>
+		readonly List<TowerLevel> m_UpgradePath = new List<TowerLevel>();
+
+        /// <summary>
+        /// Gets whether the tower can level up anymore
+        /// </summary>
+        public bool isAtMaxLevel
 		{
-			get { return currentLevel == levels.Length - 1; }
+			get { return GetUpgradeOptions().Length == 0; }
 		}
 
 		/// <summary>
@@ -111,23 +123,81 @@ namespace TowerDefense.Towers
 			}
 		}
 
-		/// <summary>
-		/// Provides information on the cost to upgrade
-		/// </summary>
-		/// <returns>Returns -1 if the towers is already at max level, other returns the cost to upgrade</returns>
-		public int GetCostForNextLevel()
+        /// <summary>
+        /// Returns the list of upgrade options available from the current level.
+        /// Falls back to the original linear chain when no explicit options are set.
+        /// </summary>
+        /// <returns>An array of TowerLevel prefabs the player can upgrade into. Empty if at max level.</returns>
+		public TowerLevel[] GetUpgradeOptions()
 		{
-			if (isAtMaxLevel)
+			if(currentTowerLevel != null && currentTowerLevel.upgradeOptions != null && currentTowerLevel.upgradeOptions.Length > 0)
+			{
+				return currentTowerLevel.upgradeOptions;
+			}
+
+			// Fallback: behave exactly like the original linear chain
+			if(currentLevel + 1 < levels.Length)
+			{
+				return new[] { levels[currentLevel + 1] };
+			}
+
+			return s_NoOptions;
+		}
+
+        /// <summary>
+        /// Number of upgrade options available from the current level
+        /// </summary>
+		public int GetUpgradeOptionCount()
+		{
+			return GetUpgradeOptions().Length;
+		}
+
+        /// <summary>
+        /// Gets the cost of a specific upgrade option
+        /// </summary>
+        /// <param name="optionIndex">Index into <see cref="GetUpgradeOptions"/></param>
+        /// <returns>The cost, or -1 if the index is invalid</returns>
+		public int GetUpgradeCost(int optionIndex)
+		{
+			TowerLevel[] options = GetUpgradeOptions();
+			if(optionIndex < 0 || optionIndex >= options.Length)
 			{
 				return -1;
 			}
-			return levels[currentLevel + 1].cost;
+			return options[optionIndex].cost;
 		}
 
-		/// <summary>
-		/// Kills this tower
-		/// </summary>
-		public void KillTower()
+        /// <summary>
+        /// Provides information on the cost to upgrade
+        /// </summary>
+        /// <returns>Returns -1 if the towers is already at max level, other returns the cost to upgrade</returns>
+        public int GetCostForNextLevel()
+		{
+			TowerLevel[] options = GetUpgradeOptions();
+			if (options.Length == 0)
+			{
+				return -1;
+			}
+			return options[0].cost;
+		}
+
+        /// <summary>
+        /// The TowerLevel that best represents the tower's current state.
+        /// Returns the live node when placed, or the base prefab for ghosts/library prefabs.
+        /// </summary>
+		public TowerLevel GetCurrentLevelTowerLevel()
+		{
+			if(currentTowerLevel != null)
+			{
+				return currentTowerLevel;
+			}
+			return levels.Length > 0 ? levels[0] : null;
+		}
+
+        /// <summary>
+        /// Kills this tower
+        /// </summary>
+        public void KillTower()
 		{
 			// Invoke base kill method
 			Kill();
@@ -150,29 +220,36 @@ namespace TowerDefense.Towers
 		public int GetSellLevel(int level)
 		{
 			// sell for full price if waves haven't started yet
+			// We sum the ACTUAL path the player paid for, so branching is refunded correctly.
 			if (LevelManager.instance.levelState == LevelState.Building)
 			{
 				int cost = 0;
-				for (int i = 0; i <= level; i++)
+				int count = Mathf.Min(level + 1, m_UpgradePath.Count);
+				for (int i = 0; i < count; i++)
 				{
-					cost += levels[i].cost;
+					cost += m_UpgradePath[i].cost;
 				}
 
 				return cost;
 			}
-			return levels[currentLevel].sell;
+			return currentTowerLevel != null ? currentTowerLevel.sell : 0;
 		}
 
 		/// <summary>
 		/// Used to (try to) upgrade the tower data
 		/// </summary>
-		public virtual bool UpgradeTower()
+		public virtual bool UpgradeTower(int optionIndex = 0)
 		{
-			if (isAtMaxLevel)
+			TowerLevel[] options = GetUpgradeOptions();
+			if (options.Length == 0)
 			{
 				return false;
 			}
-			SetLevel(currentLevel + 1);
+			if(optionIndex < 0 || optionIndex >= options.Length)
+			{
+				return false;
+			}
+			ApplyLevel(options[optionIndex], currentLevel + 1);
 			return true;
 		}
 
@@ -247,17 +324,36 @@ namespace TowerDefense.Towers
 			{
 				return;
 			}
-			currentLevel = level;
-			if (currentTowerLevel != null)
+			ApplyLevel(levels[level], level);
+		}
+
+        /// <summary>
+        /// Instantiates a specific TowerLevel prefab as the new current level and updates all cached data.
+        /// This is the single funnel through which every level change passes.
+        /// </summary>
+        /// <param name="levelPrefab">The TowerLevel prefab to apply</param>
+        /// <param name="depth">The depth this level sits at in the upgrade tree</param>
+		protected void ApplyLevel(TowerLevel levelPrefab, int depth)
+		{
+			if(levelPrefab == null)
+			{
+				return;
+			}
+
+			currentLevel = depth;
+			if(currentTowerLevel != null)
 			{
 				Destroy(currentTowerLevel.gameObject);
 			}
 
 			// instantiate the visual representation
-			currentTowerLevel = Instantiate(levels[currentLevel], transform);
+			currentTowerLevel = Instantiate(levelPrefab, transform);
 
 			// initialize TowerLevel
 			currentTowerLevel.Initialize(this, enemyLayerMask, configuration.alignmentProvider);
+
+			// record the path so we can refind exactly what was paid
+			TrackPath(levelPrefab, depth);
 
 			// health data
 			ScaleHealth();
@@ -268,11 +364,39 @@ namespace TowerDefense.Towers
 			currentTowerLevel.SetAffectorState(initialise);
 		}
 
-		/// <summary>
-		/// Scales the health based on the previous health
-		/// Requires override when the rules for scaling health on upgrade changes
-		/// </summary>
-		protected virtual void ScaleHealth()
+        /// <summary>
+        /// Keeps <see cref="m_UpgradePath"/> in sync with the level prefabs actually applied at each depth
+        /// </summary>
+		void TrackPath(TowerLevel levelPrefab, int depth)
+		{
+			if(depth == 0)
+			{
+				m_UpgradePath.Clear();
+				m_UpgradePath.Add(levelPrefab);
+				return;
+			}
+
+			// Trim anything deeper than where we are now (e.g. after a downgrade)
+			while (m_UpgradePath.Count > depth)
+			{
+				m_UpgradePath.RemoveAt(m_UpgradePath.Count - 1);
+			}
+
+			if(m_UpgradePath.Count == depth)
+			{
+				m_UpgradePath.Add(levelPrefab);
+			}
+			else
+			{
+				m_UpgradePath[depth] = levelPrefab;
+			}
+		}
+
+        /// <summary>
+        /// Scales the health based on the previous health
+        /// Requires override when the rules for scaling health on upgrade changes
+        /// </summary>
+        protected virtual void ScaleHealth()
 		{
 			configuration.SetMaxHealth(currentTowerLevel.maxHealth);
 			

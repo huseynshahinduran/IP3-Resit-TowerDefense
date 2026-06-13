@@ -448,7 +448,7 @@ namespace TowerDefense.UI.HUD
 		/// Throws exception when selecting tower when <see cref="State" /> does not equal <see cref="State.Normal" />
 		/// or <see cref="currentSelectedTower" /> is null
 		/// </exception>
-		public void UpgradeSelectedTower()
+		public void UpgradeSelectedTower(int optionIndex = 0)
 		{
 			if (state != State.Normal)
 			{
@@ -462,11 +462,16 @@ namespace TowerDefense.UI.HUD
 			{
 				return;
 			}
-			int upgradeCost = currentSelectedTower.GetCostForNextLevel();
+			// Cost of the SPECIFIC branch the player chose (option 0 == old behaviour)
+			int upgradeCost = currentSelectedTower.GetUpgradeCost(optionIndex);
+			if(upgradeCost < 0)
+			{
+				return;
+			}
 			bool successfulUpgrade = LevelManager.instance.currency.TryPurchase(upgradeCost);
 			if (successfulUpgrade)
 			{
-				currentSelectedTower.UpgradeTower();
+				currentSelectedTower.UpgradeTower(optionIndex);
 			}
 			towerUI.Hide();
 			DeselectTower();

@@ -24,9 +24,17 @@ namespace TowerDefense.Towers
 		public GameObject buildEffectPrefab;
 
 		/// <summary>
-		/// Reference to scriptable object with level data on it
+		/// The upgrade choices branching out of this level.
+		/// Each entry is a TowerLevel prefab the player can upgrade INTO from here.
+		/// Leave EMPTY to fall back to the original linear chain (Tower.levels order),
+		/// or to mark this level as a dead-end (max level).
 		/// </summary>
-		public  TowerLevelData levelData;
+		public TowerLevel[] upgradeOptions;
+
+        /// <summary>
+        /// Reference to scriptable object with level data on it
+        /// </summary>
+        public TowerLevelData levelData;
 
 		/// <summary>
 		/// The parent tower controller of this tower
