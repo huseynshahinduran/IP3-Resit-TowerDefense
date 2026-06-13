@@ -4,7 +4,7 @@
 PlayerSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 28
-  productGUID: 3f08c41516e965d40966d17efc7650be
+  productGUID: 00000000000000000000000000000000
   AndroidProfiler: 0
   AndroidFilterTouchesWhenObscured: 0
   AndroidEnableSustainedPerformanceMode: 0
@@ -953,7 +953,7 @@ PlayerSettings:
   cloudProjectId: 4da3c223-7581-4810-85f2-7f0d9ab148a5
   framebufferDepthMemorylessMode: 0
   qualitySettingsNames: []
-  projectName: IP3-Resit-TowerDefense
+  projectName: My project (6) 2026-03-03_16-04-44
   organizationId: huseyinsahinduran
   cloudEnabled: 0
   legacyClampBlendShapeWeights: 1

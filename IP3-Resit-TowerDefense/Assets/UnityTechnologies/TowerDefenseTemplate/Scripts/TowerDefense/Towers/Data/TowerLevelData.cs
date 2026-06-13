@@ -42,5 +42,5 @@ namespace TowerDefense.Towers.Data
 		/// The tower icon
 		/// </summary>
 		public Sprite icon;
-    }
+	}
 }

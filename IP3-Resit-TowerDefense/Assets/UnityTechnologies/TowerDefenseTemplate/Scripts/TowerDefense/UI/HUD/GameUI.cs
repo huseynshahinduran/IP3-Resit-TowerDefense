@@ -458,15 +458,15 @@ namespace TowerDefense.UI.HUD
 			{
 				throw new InvalidOperationException("Selected Tower is null");
 			}
-            if (currentSelectedTower.isAtMaxLevel)
+			if (currentSelectedTower.isAtMaxLevel)
 			{
 				return;
 			}
-            int upgradeCost = currentSelectedTower.GetCostForNextLevel();
+			int upgradeCost = currentSelectedTower.GetCostForNextLevel();
 			bool successfulUpgrade = LevelManager.instance.currency.TryPurchase(upgradeCost);
 			if (successfulUpgrade)
 			{
-				currentSelectedTower.UpgradeTower(TowerUpgradeChoice.Power);
+				currentSelectedTower.UpgradeTower();
 			}
 			towerUI.Hide();
 			DeselectTower();
