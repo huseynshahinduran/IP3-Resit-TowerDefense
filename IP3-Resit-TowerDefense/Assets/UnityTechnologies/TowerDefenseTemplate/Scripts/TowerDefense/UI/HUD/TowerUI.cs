@@ -34,9 +34,14 @@ namespace TowerDefense.UI.HUD
 		public Button upgradeButton;
 
 		/// <summary>
-		/// Component to display the relevant information of the tower
+		/// One button per upgrade branch. When set, this replaces the single upgrade button.
 		/// </summary>
-		public TowerInfoDisplay towerInfoDisplay;
+		public UpgradeOptionButton[] upgradeOptionButtons;
+
+        /// <summary>
+        /// Component to display the relevant information of the tower
+        /// </summary>
+        public TowerInfoDisplay towerInfoDisplay;
 
 		public RectTransform panelRectTransform;
 
@@ -79,21 +84,33 @@ namespace TowerDefense.UI.HUD
 			{
 				sellButton.gameObject.SetActive(sellValue > 0);
 			}
-			if (upgradeButton != null)
+			bool maxLevel = m_Tower.isAtMaxLevel;
+			if(upgradeOptionButtons != null && upgradeOptionButtons.Length > 0)
 			{
-				upgradeButton.interactable = 
-					LevelManager.instance.currency.CanAfford(m_Tower.GetCostForNextLevel());
-				bool maxLevel = m_Tower.isAtMaxLevel;
+				// New branching menu: one button per upgrade option
+				ShowUpgradeOptions(maxLevel);
+				if(upgradeButton != null)
+				{
+					upgradeButton.gameObject.SetActive(false);
+				}
+			}
+			else if(upgradeButton != null)
+			{
+				// Legacy single-button path (used until the option buttons are wired up)
+				upgradeButton.interactable = LevelManager.instance.currency.CanAfford(m_Tower.GetCostForNextLevel());
 				upgradeButton.gameObject.SetActive(!maxLevel);
 				if (!maxLevel)
 				{
-					upgradeDescription.text =
-						m_Tower.levels[m_Tower.currentLevel + 1].upgradeDescription.ToUpper();
+					TowerLevel[] options = m_Tower.GetUpgradeOptions();
+					if(options.Length > 0 && upgradeDescription != null)
+					{
+						upgradeDescription.text = options[0].upgradeDescription.ToUpper();
+					}
 				}
 			}
 			LevelManager.instance.currency.currencyChanged += OnCurrencyChanged;
 			towerInfoDisplay.Show(towerToShow);
-			foreach (var button in confirmationButtons)
+			foreach(var button in confirmationButtons)
 			{
 				button.SetActive(false);
 			}
@@ -113,10 +130,34 @@ namespace TowerDefense.UI.HUD
 			LevelManager.instance.currency.currencyChanged -= OnCurrencyChanged;
 		}
 
-		/// <summary>
-		/// Upgrades the tower through <see cref="GameUI"/>
-		/// </summary>
-		public void UpgradeButtonClick()
+        /// <summary>
+        /// Fills in one button per available upgrade option and hides the rest
+        /// </summary>
+		void ShowUpgradeOptions(bool maxLevel)
+		{
+			TowerLevel[] options = m_Tower.GetUpgradeOptions();
+			for(int i = 0; i < upgradeOptionButtons.Length; i++)
+			{
+				UpgradeOptionButton optionButton = upgradeOptionButtons[i];
+				if(optionButton == null)
+				{
+					continue;
+				}
+				if(maxLevel || i >=  options.Length)
+				{
+					optionButton.gameObject.SetActive(false);
+				}
+				else
+				{
+					optionButton.Configure(m_Tower, i);
+				}
+			}
+		}
+
+        /// <summary>
+        /// Upgrades the tower through <see cref="GameUI"/>
+        /// </summary>
+        public void UpgradeButtonClick()
 		{
 			GameUI.instance.UpgradeSelectedTower();
 		}
@@ -219,10 +260,23 @@ namespace TowerDefense.UI.HUD
 		/// </summary>
 		void OnCurrencyChanged()
 		{
-			if (m_Tower != null && upgradeButton != null)
+			if(m_Tower == null)
 			{
-				upgradeButton.interactable = 
-					LevelManager.instance.currency.CanAfford(m_Tower.GetCostForNextLevel());
+				return;
+			}
+			if(upgradeOptionButtons != null && upgradeOptionButtons.Length > 0)
+			{
+				foreach(UpgradeOptionButton optionButton in upgradeOptionButtons)
+				{
+                    if(optionButton != null && optionButton.gameObject.activeSelf)
+					{
+						optionButton.RefreshAffordability(m_Tower);
+					}
+                }
+			}
+			else if(upgradeButton != null)
+			{
+				upgradeButton.interactable = LevelManager.instance.currency.CanAfford(m_Tower.GetCostForNextLevel());
 			}
 		}
 
