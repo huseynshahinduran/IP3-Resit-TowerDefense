@@ -362,6 +362,86 @@ namespace TowerDefense.Towers
 			LevelState levelState = LevelManager.instance.levelState;
 			bool initialise = levelState == LevelState.AllEnemiesSpawned || levelState == LevelState.SpawningEnemies;
 			currentTowerLevel.SetAffectorState(initialise);
+
+			// Only play upgrade feedback for real upgrades, not the initial placement (depth 0)
+			if (depth > 0)
+			{
+				PlayUpgradeFeedback();
+			}
+		}
+
+		/// <summary>
+		/// Spawns the upgrade visual effect and plays the upgrade sound for the level we just reached.
+		/// Each level (and each branch) can define its own, so the two paths feel different.
+		/// </summary>
+		void PlayUpgradeFeedback()
+		{
+			if(currentTowerLevel == null || currentTowerLevel.levelData == null)
+			{
+				return;
+			}
+
+			if(currentTowerLevel.levelData.upgradeEffectPrefab != null)
+			{
+				Instantiate(currentTowerLevel.levelData.upgradeEffectPrefab, transform.position, transform.rotation);
+			}
+
+			if(currentTowerLevel.levelData.upgradeSound != null)
+			{
+				AudioSource.PlayClipAtPoint(currentTowerLevel.levelData.upgradeSound, transform.position);
+			}
+
+			// Briefly flash the whole tower in this branch's colour (alpha 0 = disabled)
+			if(currentTowerLevel.levelData.flashColor.a > 0f)
+			{
+				FlashTowerColor(currentTowerLevel.levelData.flashColor);
+			}
+		}
+
+		void FlashTowerColor(Color color)
+		{
+			if(currentTowerLevel == null) {  return; }
+            Renderer[] renderers = currentTowerLevel.GetComponentsInChildren<Renderer>();
+			if(renderers.Length == 0) { return; }
+			StartCoroutine(FlashRoutine(renderers, color));
+		}
+
+		System.Collections.IEnumerator FlashRoutine(Renderer[] renderers, Color color)
+		{
+			const float duration = 0.35f;
+			Material[][] materialSets = new Material[renderers.Length][];
+			Color[][] originalColors = new Color[renderers.Length][];
+			for(int r=0; r<renderers.Length; r++)
+			{
+				Material[] mats = renderers[r].materials;
+				materialSets[r] = mats;
+				originalColors[r] = new Color[mats.Length];
+
+                for (int i=0; i<mats.Length; i++)
+				{
+					// Skip materials whose shader has no colour property (shadows, particles, etc.)
+					if (mats[i] == null || !mats[i].HasProperty("_Color"))
+					{
+						originalColors[r][i] = color; // placeholder; won't be applied
+						continue;
+					}
+                    originalColors[r][i] = mats[i].color;
+					mats[i].color = color;
+				}
+			}
+			yield return new WaitForSeconds(duration);
+			for(int r=0; r<renderers.Length; r++)
+			{
+				if (renderers[r] ==  null) { continue; }
+				Material[] mats = materialSets[r];
+				for(int i=0; i<mats.Length; i++)
+				{
+					if (mats[i] != null && mats[i].HasProperty("_Color")) 
+					{ 
+						mats[i].color = originalColors[r][i]; 
+					}
+				}
+			}
 		}
 
         /// <summary>

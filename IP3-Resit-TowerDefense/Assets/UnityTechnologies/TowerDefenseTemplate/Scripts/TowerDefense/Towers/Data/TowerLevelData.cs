@@ -42,5 +42,21 @@ namespace TowerDefense.Towers.Data
 		/// The tower icon
 		/// </summary>
 		public Sprite icon;
+
+		/// <summary>
+		/// Visual effect spawned when the tower upgrades INTO this level.
+		/// </summary>
+		public GameObject upgradeEffectPrefab;
+
+		/// <summary>
+		/// Sound played when the tower upgrades INTO this level.
+		/// </summary>
+		public AudioClip upgradeSound;
+
+		/// <summary>
+		/// Colour the whole tower briefly flashes when it upgrades INTO this level.
+		/// Leave the alpha at 0 to disable.
+		/// </summary>
+		public Color flashColor;
 	}
 }
