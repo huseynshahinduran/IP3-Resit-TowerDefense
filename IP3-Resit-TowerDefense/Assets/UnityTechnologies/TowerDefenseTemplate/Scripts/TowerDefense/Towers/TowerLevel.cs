@@ -47,9 +47,14 @@ namespace TowerDefense.Towers
 		Affector[] m_Affectors;
 
 		/// <summary>
-		/// Gets the list of effects attached to the tower
+		/// When false, the build effect is skipped (used on upgrades so it doesn't double up).
 		/// </summary>
-		protected Affector[] Affectors
+		bool m_PlayBuildEffect = true;
+
+        /// <summary>
+        /// Gets the list of effects attached to the tower
+        /// </summary>
+        protected Affector[] Affectors
 		{
 			get
 			{
@@ -194,12 +199,21 @@ namespace TowerDefense.Towers
 			m_Affectors = null;
 		}
 
-		/// <summary>
-		/// Insntiate the build particle effect object
-		/// </summary>
-		void Start()
+        /// <summary>
+        /// Stops this level from playing its build effect. Must be called before Start() runs
+        /// (i.e. right after the level is instantiated).
+        /// </summary>
+		public void SuppressBuildEffect()
 		{
-			if (buildEffectPrefab != null)
+			m_PlayBuildEffect = false;
+		}
+        
+		/// <summary>
+        /// Insntiate the build particle effect object
+        /// </summary>
+        void Start()
+		{
+			if (m_PlayBuildEffect && buildEffectPrefab != null)
 			{
 				Instantiate(buildEffectPrefab, transform);
 			}

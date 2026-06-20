@@ -375,6 +375,13 @@ namespace TowerDefense.Towers
 			// Only play upgrade feedback for real upgrades, not the initial placement (depth 0)
 			if (depth > 0)
 			{
+				currentTowerLevel.SuppressBuildEffect();
+
+				foreach(AudioSource spawnSource in currentTowerLevel.GetComponentsInChildren<AudioSource>())
+				{
+					spawnSource.Stop();
+				}
+
 				PlayUpgradeFeedback();
 			}
 		}
