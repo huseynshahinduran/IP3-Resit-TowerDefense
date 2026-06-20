@@ -35,9 +35,17 @@ namespace TowerDefense.Towers
 		public LayerMask enemyLayerMask;
 
 		/// <summary>
-		/// The current level of the tower
+		/// Fraction of the total invested that is refunded when the tower is sold DURING combat.
+		/// Selling before the waves start always refunds 100%. 0.5 = 50%. 
 		/// </summary>
-		public int currentLevel { get; protected set; }
+		[Range(0f, 1f)]
+		[Tooltip("Refund fraction when selling during combat. Before waves start the refund is always 100%.")]
+		public float sellRefundFactor = 0.5f;
+
+        /// <summary>
+        /// The current level of the tower
+        /// </summary>
+        public int currentLevel { get; protected set; }
 
 		/// <summary>
 		/// Reference to the data of the current level
@@ -219,20 +227,21 @@ namespace TowerDefense.Towers
 		/// <returns>A sell value of the tower</returns>
 		public int GetSellLevel(int level)
 		{
-			// sell for full price if waves haven't started yet
-			// We sum the ACTUAL path the player paid for, so branching is refunded correctly.
-			if (LevelManager.instance.levelState == LevelState.Building)
+			// Total the player actually spent on this tower, along the path they chose
+			// (m_UpgradePath is branch-correct, so this works for any upgrade route
+			int invested = 0;
+			int count = Mathf.Min(level + 1, m_UpgradePath.Count);
+			for(int i = 0; i < count; i++)
 			{
-				int cost = 0;
-				int count = Mathf.Min(level + 1, m_UpgradePath.Count);
-				for (int i = 0; i < count; i++)
-				{
-					cost += m_UpgradePath[i].cost;
-				}
-
-				return cost;
+				invested += m_UpgradePath[i].cost;
 			}
-			return currentTowerLevel != null ? currentTowerLevel.sell : 0;
+
+			// Full refund while still building; a partial refund once the waves are running
+			if(LevelManager.instance.levelState == LevelState.Building)
+			{
+				return invested;
+			}
+			return Mathf.RoundToInt(invested * sellRefundFactor);
 		}
 
 		/// <summary>
@@ -398,7 +407,10 @@ namespace TowerDefense.Towers
 			}
 		}
 
-		void FlashTowerColor(Color color)
+        /// <summary>
+        /// Starts a short colour flash over every renderer of the current tower model.
+        /// </summary>
+        void FlashTowerColor(Color color)
 		{
 			if(currentTowerLevel == null) {  return; }
             Renderer[] renderers = currentTowerLevel.GetComponentsInChildren<Renderer>();
@@ -406,10 +418,14 @@ namespace TowerDefense.Towers
 			StartCoroutine(FlashRoutine(renderers, color));
 		}
 
-		System.Collections.IEnumerator FlashRoutine(Renderer[] renderers, Color color)
+        /// <summary>
+        /// Paints every renderer the flash colour, waits, then restores the original colours.
+        /// </summary>
+        System.Collections.IEnumerator FlashRoutine(Renderer[] renderers, Color color)
 		{
 			const float duration = 0.35f;
-			Material[][] materialSets = new Material[renderers.Length][];
+            // Cache the (now instanced) materials and their original colours, then apply the flash
+            Material[][] materialSets = new Material[renderers.Length][];
 			Color[][] originalColors = new Color[renderers.Length][];
 			for(int r=0; r<renderers.Length; r++)
 			{
@@ -422,7 +438,6 @@ namespace TowerDefense.Towers
 					// Skip materials whose shader has no colour property (shadows, particles, etc.)
 					if (mats[i] == null || !mats[i].HasProperty("_Color"))
 					{
-						originalColors[r][i] = color; // placeholder; won't be applied
 						continue;
 					}
                     originalColors[r][i] = mats[i].color;
@@ -430,7 +445,9 @@ namespace TowerDefense.Towers
 				}
 			}
 			yield return new WaitForSeconds(duration);
-			for(int r=0; r<renderers.Length; r++)
+
+            // Restore (guarding against the tower having been upgraded/destroyed meanwhile)
+            for (int r=0; r<renderers.Length; r++)
 			{
 				if (renderers[r] ==  null) { continue; }
 				Material[] mats = materialSets[r];
