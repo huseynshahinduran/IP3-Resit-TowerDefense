@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   description: Tier 3 - Heavy Damage
   upgradeDescription: + heavy damage
-  cost: 14
+  cost: 18
   sell: 13
   maxHealth: 5
   startingHealth: 5
