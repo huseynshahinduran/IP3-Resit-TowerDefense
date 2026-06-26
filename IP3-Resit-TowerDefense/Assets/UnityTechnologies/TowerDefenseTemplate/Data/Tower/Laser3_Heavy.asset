@@ -10,15 +10,15 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 24e2352be0954e359a850a9d99215c6e, type: 3}
-  m_Name: Laser3
+  m_Name: Laser3_Heavy
   m_EditorClassIdentifier: 
-  description: Tier 3 - Long range, high damage, slow fire rate
-  upgradeDescription: + range and damage
-  cost: 40
+  description: Tier 3 - Heavy damage
+  upgradeDescription: + heavy damage
+  cost: 44
   sell: 42
   maxHealth: 5
   startingHealth: 5
   icon: {fileID: 21300000, guid: 53652022b1d444a5c9e9630488e44e13, type: 3}
   upgradeEffectPrefab: {fileID: 0}
-  upgradeSound: {fileID: 8300000, guid: 714a663ed19f1ef4db191ae5701188b0, type: 3}
-  flashColor: {r: 0.12156863, g: 0, b: 1, a: 1}
+  upgradeSound: {fileID: 8300000, guid: 6df2e686e3096574bafcccd942cb4ba2, type: 3}
+  flashColor: {r: 1, g: 0, b: 0, a: 1}

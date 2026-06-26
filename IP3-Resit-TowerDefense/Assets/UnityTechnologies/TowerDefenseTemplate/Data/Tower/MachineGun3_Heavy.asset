@@ -20,5 +20,5 @@ MonoBehaviour:
   startingHealth: 5
   icon: {fileID: 21300000, guid: 3631244dc04164d079a3302a39dbc0c6, type: 3}
   upgradeEffectPrefab: {fileID: 0}
-  upgradeSound: {fileID: 0}
+  upgradeSound: {fileID: 8300000, guid: 6df2e686e3096574bafcccd942cb4ba2, type: 3}
   flashColor: {r: 1, g: 0, b: 0, a: 1}

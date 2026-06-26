@@ -3,8 +3,9 @@
 --- !u!114 &11400000
 MonoBehaviour:
   m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
@@ -18,3 +19,6 @@ MonoBehaviour:
   maxHealth: 5
   startingHealth: 5
   icon: {fileID: 21300000, guid: 8de2b0ca8a36944a9b9dd75dff42644f, type: 3}
+  upgradeEffectPrefab: {fileID: 0}
+  upgradeSound: {fileID: 8300000, guid: 714a663ed19f1ef4db191ae5701188b0, type: 3}
+  flashColor: {r: 0.12156863, g: 0, b: 1, a: 1}
